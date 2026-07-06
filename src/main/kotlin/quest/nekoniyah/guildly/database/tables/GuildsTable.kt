@@ -1,10 +1,19 @@
 package quest.nekoniyah.guildly.database.tables
 
-import quest.nekoniyah.guildly.utils.database.Table
-import quest.nekoniyah.guildly.utils.database.TableField
+import quest.nekoniyah.guildly.database.core.Column
+import quest.nekoniyah.guildly.database.core.Schema
 
-val GuildsTable = Table("guilds").setFields(
-    TableField("name", "TEXT", primaryKey = true),
-    TableField("ownerId", "TEXT"),
-    TableField("playerIds", "TEXT") // We will store this as a JSON array string
-)
+/**
+ * Schema definition for `guilds` table.
+ *
+ * `playerIds` is stored as a JSON-encoded string array (e.g. `["uuid1", "uuid2"]`).
+ */
+object GuildsTable: Schema("guilds") {
+	val name: Column<String> = text("name", primaryKey = true)
+	val ownerId: Column<String> = text("ownerId")
+	val playerIds: Column<String> = text("playerIds")
+
+	init {
+		columns.addAll(listOf(name, ownerId, playerIds))
+	}
+}

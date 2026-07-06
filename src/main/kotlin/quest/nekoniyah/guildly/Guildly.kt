@@ -1,5 +1,6 @@
 package quest.nekoniyah.guildly
 
+import net.minecraft.server.level.ServerPlayer
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
@@ -12,24 +13,17 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import quest.nekoniyah.guildly.commands.guilds.GuildsCommand
-import quest.nekoniyah.guildly.utils.Cache
-import quest.nekoniyah.guildly.utils.database.Database
-import quest.nekoniyah.guildly.utils.database.guild.GuildManager
-import quest.nekoniyah.guildly.utils.database.joinrequest.JoinRequestManager
+import quest.nekoniyah.guildly.database.cache.PlayerCache
+import quest.nekoniyah.guildly.database.core.Database
+import quest.nekoniyah.guildly.database.managers.guild.GuildManager
+import quest.nekoniyah.guildly.database.managers.joinrequest.JoinRequestManager
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-/**
- * Main mod class.
- *
- * An example for blocks is in the `blocks` package of this mod.
- */
 @Mod(Guildly.ID)
 @EventBusSubscriber(value = [Dist.DEDICATED_SERVER])
 object Guildly {
     const val ID = "guildly"
-
-    // the logger for our mod
     val LOGGER: Logger = LogManager.getLogger(ID)
 
     @SubscribeEvent
@@ -40,7 +34,14 @@ object Guildly {
 
     @SubscribeEvent
     fun onPlayerJoinServer(event: PlayerEvent.PlayerLoggedInEvent){
-        Cache.players.add(event.entity)
+        val player = event.entity as? ServerPlayer ?: return
+        PlayerCache.add(player)
+    }
+
+    @SubscribeEvent
+    fun onPlayerLeaveServer(event: PlayerEvent.PlayerLoggedOutEvent) {
+        val player = event.entity as? ServerPlayer ?: return
+        PlayerCache.remove(player)
     }
 
     @SubscribeEvent
@@ -48,20 +49,16 @@ object Guildly {
         Database.init()
         GuildManager.loadAll()
         JoinRequestManager.loadAll()
-
-        val scheduler = Executors.newScheduledThreadPool(1)
-
-        scheduler.scheduleAtFixedRate({
-          GuildManager.saveAll()
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
+            GuildManager.saveAll()
             JoinRequestManager.saveAll()
-        }, 0, 1, TimeUnit.HOURS)
-
-        LOGGER.log(Level.INFO, "Hello! This is working!")
+        }, 1, 1, TimeUnit.HOURS)
+        LOGGER.info("Guildly database initialized.")
     }
 
     @SubscribeEvent
     fun onServerStop(event: ServerStoppingEvent) {
-        JoinRequestManager.saveAll()
         GuildManager.saveAll()
+        JoinRequestManager.saveAll()
     }
 }
