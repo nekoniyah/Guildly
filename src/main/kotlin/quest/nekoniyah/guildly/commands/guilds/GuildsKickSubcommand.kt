@@ -13,7 +13,6 @@ import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 import java.util.Locale
 
 class GuildsKickSubcommand : GuildlyNodeCommand() {
-	override val subcommands: List<GuildlyNodeCommand>? = null
 	override val name: String = "kick"
 	override val description: String = "Removes a member from your guild."
 	private val suggestions = SuggestionProvider<CommandSourceStack> { context, builder ->

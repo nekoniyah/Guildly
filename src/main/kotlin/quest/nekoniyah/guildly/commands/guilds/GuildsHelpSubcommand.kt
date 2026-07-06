@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component
 import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 
 class GuildsHelpSubcommand(private val parent: GuildsCommand) : GuildlyNodeCommand() {
-	override val subcommands: List<GuildlyNodeCommand>? = null
 	override val name: String = "help"
 	override val description: String = "Shows this help message."
 	override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute)

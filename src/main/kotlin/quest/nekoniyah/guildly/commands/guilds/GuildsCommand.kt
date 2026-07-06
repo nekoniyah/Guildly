@@ -6,7 +6,6 @@ import quest.nekoniyah.guildly.utils.command.GuildlyCoreCommand
 import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 
 class GuildsCommand : GuildlyCoreCommand() {
-    override val definition = null
     override val name = "guilds"
 
     override fun execute(ctx: CommandContext<CommandSourceStack>): Int {

@@ -14,7 +14,6 @@ import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 import java.util.Locale
 
 class GuildsAcceptSubcommand : GuildlyNodeCommand() {
-    override val subcommands: List<GuildlyNodeCommand>? = null
     override val name: String = "accept"
     override val description: String = "Accepts a pending join request for your guild."
     private val suggestions = SuggestionProvider<CommandSourceStack> { _, builder ->

@@ -14,7 +14,6 @@ import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 import kotlin.random.Random
 
 class GuildsJoinSubcommand : GuildlyNodeCommand() {
-    override val subcommands: List<GuildlyNodeCommand>? = null
     override val name: String = "join"
     override val description: String = "Request to join a guild by name."
     override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute).then(Commands.argument("name", StringArgumentType.greedyString()).executes(::joinGuild))
