@@ -14,7 +14,15 @@ class GuildsListSubcommand : GuildlyNodeCommand() {
     override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute)
 
     override fun execute(ctx: CommandContext<CommandSourceStack>): Int {
-        GuildManager.loadedGuilds.forEach { guild -> ctx.source.sendSuccess({ Component.literal(guild.name) }, false) }
+        if (GuildManager.loadedGuilds.isEmpty()) {
+            ctx.source.sendSuccess({ Component.literal("No guilds have been created yet") }, false)
+            return 1
+        }
+        GuildManager.loadedGuilds.forEach { guild ->
+            val memberCount = guild.playerIds.size + 1
+            val message = Component.literal("${guild.name}  - $memberCount member${if (memberCount != 1) "s" else ""}")
+            ctx.source.sendSuccess({ message }, false)
+        }
         return 1
     }
 }

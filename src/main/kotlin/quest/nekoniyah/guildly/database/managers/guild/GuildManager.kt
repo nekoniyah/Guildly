@@ -26,6 +26,8 @@ object GuildManager {
 		return GuildsTable.select().where("name = ?", name).fetchOne(Database) != null
 	}
 
+	fun findGuildOf(playerId: String): GuildData? = loadedGuilds.find { it.ownerId == playerId || it.playerIds.contains(playerId) }
+
 	fun isValidName(name: String): Boolean = name.matches(Regex("^[a-zA-Z_]+$"))
 
 	fun updateGuild(guild: GuildData) {

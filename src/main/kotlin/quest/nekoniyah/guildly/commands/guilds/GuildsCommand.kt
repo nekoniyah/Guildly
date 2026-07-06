@@ -16,6 +16,7 @@ class GuildsCommand : GuildlyCoreCommand() {
         GuildsAddSubcommand(),
         GuildsLeaveSubcommand(),
         GuildsJoinSubcommand(),
-        GuildsAcceptSubcommand()
+        GuildsAcceptSubcommand(),
+        GuildsKickSubcommand()
     )
 }

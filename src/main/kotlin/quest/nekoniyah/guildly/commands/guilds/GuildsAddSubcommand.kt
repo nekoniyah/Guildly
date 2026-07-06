@@ -29,9 +29,10 @@ class GuildsAddSubcommand : GuildlyNodeCommand() {
             feedback.fail("A guild with that name already exists.")
             return 0
         }
-        val foundOwnedGuild = GuildManager.loadedGuilds.find { guild -> guild.ownerId == playerId }
-        if (foundOwnedGuild != null) {
-            feedback.fail("You already own a guild.")
+        val existingGuild = GuildManager.findGuildOf(playerId)
+        if (existingGuild != null) {
+            if (existingGuild.ownerId == playerId) feedback.fail("you already own a guild.")
+            else feedback.fail("You are already a member of the ${existingGuild.name} guild. Leave it first!")
             return 0
         }
         if (!GuildManager.isValidName(argName)) {

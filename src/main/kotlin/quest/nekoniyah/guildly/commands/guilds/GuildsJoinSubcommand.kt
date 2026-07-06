@@ -26,27 +26,34 @@ class GuildsJoinSubcommand : GuildlyNodeCommand() {
         val feedback = Feedback(ctx)
         val argName = StringArgumentType.getString(ctx, "name")
         val playerId = ctx.source.player!!.stringUUID
-        val foundExistingGuild = GuildManager.getGuild(argName)
-        if (foundExistingGuild == null) {
+        val targetGuild = GuildManager.getGuild(argName)
+        if (targetGuild == null) {
             feedback.fail("A guild with that name doesn't exist!")
             return 0
         }
-        if (foundExistingGuild.ownerId == playerId) {
-            feedback.fail("You are the owner of the guild!")
+        val existingGuild = GuildManager.findGuildOf(playerId)
+        if (existingGuild != null) {
+            if (existingGuild.name == targetGuild.name) {
+                feedback.fail(
+                    if (existingGuild.ownerId == playerId) "You are the owner of that guild!"
+                    else "you are already a member of that guild!"
+                )
+            } else feedback.fail("You already belong to the ${existingGuild.name}. Leave it before joining another!")
             return 0
         }
-        if (foundExistingGuild.playerIds.contains(playerId)) {
-            feedback.fail("You are already a member of that guild!")
+        val alreadyRequested = JoinRequestManager.loadedRequests.any { request -> request.userId == playerId && request.guildName == targetGuild.name }
+        if (alreadyRequested) {
+            feedback.fail("You already have a pending request to join ${targetGuild.name}.")
             return 0
         }
         JoinRequestManager.addRequest(
             JoinRequestData(
                 id = Random.nextInt().toString(16),
                 userId = playerId,
-                guildName = argName
+                guildName = targetGuild.name
             )
         )
-        feedback.success("Successfully requested to join the $argName guild!")
+        feedback.success("Successfully requested to join the ${targetGuild.name} guild!")
         return 1
     }
 }
