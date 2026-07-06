@@ -9,4 +9,5 @@ abstract class GuildlyNodeCommand {
     abstract val definition: LiteralArgumentBuilder<CommandSourceStack?>?
     abstract fun execute(ctx: CommandContext<CommandSourceStack>): Int
     abstract val subcommands: List<GuildlyNodeCommand>?
+    open val description: String = "No description available."
 }

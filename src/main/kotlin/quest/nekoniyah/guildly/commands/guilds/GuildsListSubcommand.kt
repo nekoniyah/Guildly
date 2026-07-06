@@ -11,6 +11,7 @@ import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 class GuildsListSubcommand : GuildlyNodeCommand() {
     override val subcommands: List<GuildlyNodeCommand>? = null
     override val name: String = "list"
+    override val description: String = "Lists all existing guilds and their member counts."
     override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute)
 
     override fun execute(ctx: CommandContext<CommandSourceStack>): Int {

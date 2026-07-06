@@ -13,10 +13,10 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import quest.nekoniyah.guildly.commands.guilds.GuildsCommand
-import quest.nekoniyah.guildly.database.cache.PlayerCache
 import quest.nekoniyah.guildly.database.core.Database
 import quest.nekoniyah.guildly.database.managers.guild.GuildManager
 import quest.nekoniyah.guildly.database.managers.joinrequest.JoinRequestManager
+import quest.nekoniyah.guildly.database.managers.player.PlayerManager
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -35,21 +35,24 @@ object Guildly {
     @SubscribeEvent
     fun onPlayerJoinServer(event: PlayerEvent.PlayerLoggedInEvent){
         val player = event.entity as? ServerPlayer ?: return
-        PlayerCache.add(player)
+        PlayerManager.add(player)
     }
 
     @SubscribeEvent
     fun onPlayerLeaveServer(event: PlayerEvent.PlayerLoggedOutEvent) {
         val player = event.entity as? ServerPlayer ?: return
-        PlayerCache.remove(player)
+        PlayerManager.remove(player)
+        PlayerManager.saveAll()
     }
 
     @SubscribeEvent
     fun onServerStarting(event: ServerStartingEvent) {
         Database.init()
+        PlayerManager.loadAll()
         GuildManager.loadAll()
         JoinRequestManager.loadAll()
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate({
+            PlayerManager.saveAll()
             GuildManager.saveAll()
             JoinRequestManager.saveAll()
         }, 1, 1, TimeUnit.HOURS)
@@ -58,6 +61,7 @@ object Guildly {
 
     @SubscribeEvent
     fun onServerStop(event: ServerStoppingEvent) {
+        PlayerManager.saveAll()
         GuildManager.saveAll()
         JoinRequestManager.saveAll()
     }

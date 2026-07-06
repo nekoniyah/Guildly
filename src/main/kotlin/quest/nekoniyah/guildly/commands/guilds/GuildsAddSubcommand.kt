@@ -13,7 +13,7 @@ import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 class GuildsAddSubcommand : GuildlyNodeCommand() {
     override val subcommands: List<GuildlyNodeCommand>? = null
     override val name: String = "add"
-
+    override val description: String = "Creates a new guild owned by you."
     override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute).then(Commands.argument("name", StringArgumentType.greedyString()).executes(::addGuild))
 
     override fun execute(ctx: CommandContext<CommandSourceStack>): Int {

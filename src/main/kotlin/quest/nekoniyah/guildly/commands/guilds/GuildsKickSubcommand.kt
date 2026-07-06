@@ -6,20 +6,20 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import quest.nekoniyah.guildly.database.cache.PlayerCache
 import quest.nekoniyah.guildly.database.managers.guild.GuildManager
+import quest.nekoniyah.guildly.database.managers.player.PlayerManager
 import quest.nekoniyah.guildly.utils.Feedback
 import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 import java.util.Locale
 
-class GuildsKickSubcommand: GuildlyNodeCommand() {
+class GuildsKickSubcommand : GuildlyNodeCommand() {
 	override val subcommands: List<GuildlyNodeCommand>? = null
 	override val name: String = "kick"
-
+	override val description: String = "Removes a member from your guild."
 	private val suggestions = SuggestionProvider<CommandSourceStack> { context, builder ->
 		val ownerId = context.source.player?.stringUUID
 		val ownedGuild = ownerId?.let { id -> GuildManager.loadedGuilds.find { it.ownerId == id } }
-		ownedGuild?.playerIds?.mapNotNull { PlayerCache.findByUUID(it)?.displayName?.string }?.forEach { member -> if (member.lowercase(Locale.ROOT).startsWith(builder.remainingLowerCase)) builder.suggest(member) }
+		ownedGuild?.playerIds?.mapNotNull { PlayerManager.getByUUID(it)?.name }?.forEach { memberName -> if (memberName.lowercase(Locale.ROOT).startsWith(builder.remainingLowerCase)) { builder.suggest(memberName) } }
 		builder.buildFuture()
 	}
 	override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute).then(Commands.argument("player", StringArgumentType.string()).suggests(suggestions).executes(::kickMember))
@@ -38,20 +38,20 @@ class GuildsKickSubcommand: GuildlyNodeCommand() {
 			feedback.fail("You don't own any guild!")
 			return 0
 		}
-		val targetPlayer = PlayerCache.findByName(targetName)
-		if (targetPlayer == null) {
+		val targetData = PlayerManager.getByName(targetName)
+		if (targetData == null) {
 			feedback.fail("This user never joined the game!")
 			return 0
 		}
-		if (!ownedGuild.playerIds.contains(targetPlayer.stringUUID)) {
+		if (!ownedGuild.playerIds.contains(targetData.uuid)) {
 			feedback.fail("$targetName is not a member of your guild!")
 			return 0
 		}
 		val updatedGuild = ownedGuild.copy(playerIds = ownedGuild.playerIds.toMutableSet())
-		updatedGuild.playerIds.remove(targetPlayer.stringUUID)
+		updatedGuild.playerIds.remove(targetData.uuid)
 		GuildManager.updateGuild(updatedGuild)
-		targetPlayer.sendSystemMessage(Feedback.build("You have been kicked from the ${ownedGuild.name} guild."))
-		feedback.success("$targetName has been kick from ${ownedGuild.name}")
+		PlayerManager.findOnlineByUUID(targetData.uuid)?.sendSystemMessage(Feedback.build("You have been kicked from the ${ownedGuild.name} guild."))
+		feedback.success("$targetName has been kicked from ${ownedGuild.name}")
 		return 1
 	}
 }

@@ -11,6 +11,7 @@ import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 class GuildsLeaveSubcommand : GuildlyNodeCommand() {
     override val subcommands: List<GuildlyNodeCommand>? = null
     override val name: String = "leave"
+    override val description: String = "Leaves your current guild, or deletes it if you're the owner and it's empty."
     override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute)
 
     override fun execute(ctx: CommandContext<CommandSourceStack>): Int {

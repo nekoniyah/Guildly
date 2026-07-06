@@ -6,9 +6,9 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.SuggestionProvider
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
-import quest.nekoniyah.guildly.database.cache.PlayerCache
 import quest.nekoniyah.guildly.database.managers.guild.GuildManager
 import quest.nekoniyah.guildly.database.managers.joinrequest.JoinRequestManager
+import quest.nekoniyah.guildly.database.managers.player.PlayerManager
 import quest.nekoniyah.guildly.utils.Feedback
 import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 import java.util.Locale
@@ -16,9 +16,9 @@ import java.util.Locale
 class GuildsAcceptSubcommand : GuildlyNodeCommand() {
     override val subcommands: List<GuildlyNodeCommand>? = null
     override val name: String = "accept"
-
+    override val description: String = "Accepts a pending join request for your guild."
     private val suggestions = SuggestionProvider<CommandSourceStack> { _, builder ->
-        PlayerCache.players.mapNotNull { it.displayName?.string }.forEach { name -> if (name.lowercase(Locale.ROOT).startsWith(builder.remainingLowerCase)) builder.suggest(name) }
+        PlayerManager.onlinePlayers.mapNotNull { it.displayName?.string }.forEach { name -> if (name.lowercase(Locale.ROOT).startsWith(builder.remainingLowerCase)) builder.suggest(name) }
         builder.buildFuture()
     }
     override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute).then(Commands.argument("player", StringArgumentType.string()).suggests(suggestions).executes(::execute))
@@ -27,8 +27,8 @@ class GuildsAcceptSubcommand : GuildlyNodeCommand() {
         val feedback = Feedback(ctx)
         val player = ctx.source.player ?: return 0
         val playerName = StringArgumentType.getString(ctx, "player")
-        val targetPlayer = PlayerCache.findByName(playerName)
-        if (targetPlayer == null) {
+        val targetData = PlayerManager.getByName(playerName)
+        if (targetData == null) {
             feedback.fail("This user never joined the game!")
             return 0
         }
@@ -37,12 +37,12 @@ class GuildsAcceptSubcommand : GuildlyNodeCommand() {
             feedback.fail("You don't own any guild!")
             return 0
         }
-        val request = JoinRequestManager.loadedRequests.find { request -> request.guildName == foundOwnedGuild.name && request.userId == targetPlayer.stringUUID }
+        val request = JoinRequestManager.loadedRequests.find { request -> request.guildName == foundOwnedGuild.name && request.userId == targetData.uuid }
         if (request == null) {
             feedback.fail("There is no ongoing request for $playerName")
             return 0
         }
-        JoinRequestManager.acceptRequest(targetPlayer.stringUUID)
+        JoinRequestManager.acceptRequest(targetData.uuid)
         return 1
     }
 }

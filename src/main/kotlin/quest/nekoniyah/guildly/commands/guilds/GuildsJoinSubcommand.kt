@@ -8,6 +8,7 @@ import net.minecraft.commands.Commands
 import quest.nekoniyah.guildly.database.managers.guild.GuildManager
 import quest.nekoniyah.guildly.database.managers.joinrequest.JoinRequestData
 import quest.nekoniyah.guildly.database.managers.joinrequest.JoinRequestManager
+import quest.nekoniyah.guildly.database.managers.player.PlayerManager
 import quest.nekoniyah.guildly.utils.Feedback
 import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 import kotlin.random.Random
@@ -15,6 +16,7 @@ import kotlin.random.Random
 class GuildsJoinSubcommand : GuildlyNodeCommand() {
     override val subcommands: List<GuildlyNodeCommand>? = null
     override val name: String = "join"
+    override val description: String = "Request to join a guild by name."
     override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute).then(Commands.argument("name", StringArgumentType.greedyString()).executes(::joinGuild))
 
     override fun execute(ctx: CommandContext<CommandSourceStack>): Int {
@@ -36,7 +38,7 @@ class GuildsJoinSubcommand : GuildlyNodeCommand() {
             if (existingGuild.name == targetGuild.name) {
                 feedback.fail(
                     if (existingGuild.ownerId == playerId) "You are the owner of that guild!"
-                    else "you are already a member of that guild!"
+                    else "You are already a member of that guild!"
                 )
             } else feedback.fail("You already belong to the ${existingGuild.name}. Leave it before joining another!")
             return 0
@@ -53,6 +55,8 @@ class GuildsJoinSubcommand : GuildlyNodeCommand() {
                 guildName = targetGuild.name
             )
         )
+        val requesterName = PlayerManager.getByUUID(playerId)?.name ?: "A player"
+        PlayerManager.findOnlineByUUID(targetGuild.ownerId)?.sendSystemMessage(Feedback.build("$requesterName has requested to join your guild, ${targetGuild.name}. Use /guilds accept $requesterName to approve."))
         feedback.success("Successfully requested to join the ${targetGuild.name} guild!")
         return 1
     }
