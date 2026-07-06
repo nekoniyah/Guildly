@@ -16,7 +16,7 @@ class Feedback {
 
         fun build(message: String): MutableComponent {
             return Component.literal("").append(PREFIX)
-                .append(Component.literal(message).withStyle(ChatFormatting.RESET))
+                .append(Component.literal(" $message").withStyle(ChatFormatting.RESET))
         }
     }
 

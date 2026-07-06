@@ -2,7 +2,7 @@ package quest.nekoniyah.guildly.commands.guilds
 
 import com.mojang.brigadier.context.CommandContext
 import net.minecraft.commands.CommandSourceStack
-import quest.nekoniyah.guildly.utils.GuildlyCoreCommand
+import quest.nekoniyah.guildly.utils.command.GuildlyCoreCommand
 
 class GuildsCommand : GuildlyCoreCommand() {
     override val definition = null
@@ -11,5 +11,11 @@ class GuildsCommand : GuildlyCoreCommand() {
         return 1
     }
 
-    override val subcommands = listOf(GuildsListSubcommand(), GuildsAddSubcommand())
+    override val subcommands = listOf(
+        GuildsListSubcommand(),
+        GuildsAddSubcommand(),
+        GuildsLeaveSubcommand(),
+        GuildsJoinSubcommand(),
+        GuildsAcceptSubcommand()
+    )
 }

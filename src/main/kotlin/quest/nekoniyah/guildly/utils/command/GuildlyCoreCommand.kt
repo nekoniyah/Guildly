@@ -1,4 +1,4 @@
-package quest.nekoniyah.guildly.utils
+package quest.nekoniyah.guildly.utils.command
 
 import com.mojang.brigadier.CommandDispatcher
 import net.minecraft.commands.CommandSourceStack

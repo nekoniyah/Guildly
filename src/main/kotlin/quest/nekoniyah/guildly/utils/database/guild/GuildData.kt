@@ -1,4 +1,4 @@
-package quest.nekoniyah.guildly.utils
+package quest.nekoniyah.guildly.utils.database.guild
 
 import kotlinx.serialization.Serializable
 
@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class GuildData(
     val name: String,
     val ownerId: String,
-    val playerIds: List<String>,
+    val playerIds: MutableSet<String>,
+    var saved: Boolean = false
 )

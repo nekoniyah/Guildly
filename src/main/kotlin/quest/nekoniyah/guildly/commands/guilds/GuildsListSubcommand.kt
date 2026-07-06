@@ -4,8 +4,8 @@ import com.mojang.brigadier.context.CommandContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
-import quest.nekoniyah.guildly.utils.GuildManager
-import quest.nekoniyah.guildly.utils.GuildlyNodeCommand
+import quest.nekoniyah.guildly.utils.database.guild.GuildManager
+import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
 
 class GuildsListSubcommand : GuildlyNodeCommand() {
     override val subcommands = null
