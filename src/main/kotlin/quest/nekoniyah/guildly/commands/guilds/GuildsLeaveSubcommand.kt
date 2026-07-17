@@ -26,13 +26,14 @@ class GuildsLeaveSubcommand : GuildlyNodeCommand() {
             feedback.fail("You can't leave a guild where you are the owner and there are still members in it!")
             return 0
         }
-        val foundMemberGuild = GuildManager.loadedGuilds.find { guild -> guild.playerIds.contains(player.stringUUID) }
+
+        val foundMemberGuild = GuildManager.loadedGuilds.find { guild -> guild.playerIds.find { guild.ownerId == player.stringUUID } != null }
         if (foundMemberGuild == null) {
             feedback.fail("You are not a member of a guild!")
             return 0
         }
         val updatedGuild = foundMemberGuild.copy(playerIds = foundMemberGuild.playerIds.toMutableSet())
-        updatedGuild.playerIds.remove(player.stringUUID)
+        updatedGuild.playerIds.remove(foundMemberGuild.playerIds.find { u -> u.uuid == player.stringUUID })
         GuildManager.updateGuild(updatedGuild)
         feedback.success("Successfully left ${updatedGuild.name}!")
         return 1

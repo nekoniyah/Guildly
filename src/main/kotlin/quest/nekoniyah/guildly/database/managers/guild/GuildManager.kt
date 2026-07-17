@@ -26,7 +26,9 @@ object GuildManager {
 		return GuildsTable.select().where("name = ?", name).fetchOne(Database) != null
 	}
 
-	fun findGuildOf(playerId: String): GuildData? = loadedGuilds.find { it.ownerId == playerId || it.playerIds.contains(playerId) }
+	fun findGuildOf(playerId: String): GuildData? {
+		return loadedGuilds.find { it.ownerId == playerId || (it.playerIds.find { p -> p.uuid == playerId}) != null }
+	}
 
 	fun isValidName(name: String): Boolean = name.matches(Regex("^[a-zA-Z_]+$"))
 
@@ -60,7 +62,7 @@ object GuildManager {
 	}
 
 	private fun mapRow(row: ResultRow): GuildData {
-		val playerIds = Json.decodeFromString<MutableSet<String>>(row.get(GuildsTable.playerIds))
+		val playerIds = Json.decodeFromString<MutableSet<GuildMember>>(row.get(GuildsTable.playerIds))
 		return GuildData(
 			name = row.get(GuildsTable.name),
 			ownerId = row.get(GuildsTable.ownerId),

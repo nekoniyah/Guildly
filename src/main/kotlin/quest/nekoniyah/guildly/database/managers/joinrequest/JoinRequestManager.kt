@@ -6,6 +6,7 @@ import quest.nekoniyah.guildly.database.core.delete
 import quest.nekoniyah.guildly.database.core.select
 import quest.nekoniyah.guildly.database.core.upsert
 import quest.nekoniyah.guildly.database.managers.guild.GuildManager
+import quest.nekoniyah.guildly.database.managers.guild.GuildMember
 import quest.nekoniyah.guildly.database.managers.player.PlayerManager
 import quest.nekoniyah.guildly.database.tables.JoinRequestsTable
 import quest.nekoniyah.guildly.utils.Feedback
@@ -33,7 +34,7 @@ object JoinRequestManager {
 		PlayerManager.findOnlineByUUID(userId)?.sendSystemMessage(Feedback.build("Your request to join the ${guild.name} guild has been approved."))
 		val applicantName = PlayerManager.getByUUID(userId)?.name ?: userId
 		PlayerManager.findOnlineByUUID(guild.ownerId)?.sendSystemMessage(Feedback.build("$applicantName has been approved to join the ${guild.name} guild."))
-		guild.playerIds.add(userId)
+		guild.playerIds.add(GuildMember(userId))
 		GuildManager.updateGuild(guild)
 		deleteRequest(request)
 	}

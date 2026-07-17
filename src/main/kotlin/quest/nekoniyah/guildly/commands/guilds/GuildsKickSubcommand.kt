@@ -7,6 +7,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 import quest.nekoniyah.guildly.database.managers.guild.GuildManager
+import quest.nekoniyah.guildly.database.managers.guild.GuildMember
 import quest.nekoniyah.guildly.database.managers.player.PlayerManager
 import quest.nekoniyah.guildly.utils.Feedback
 import quest.nekoniyah.guildly.utils.command.GuildlyNodeCommand
@@ -18,7 +19,7 @@ class GuildsKickSubcommand : GuildlyNodeCommand() {
 	private val suggestions = SuggestionProvider<CommandSourceStack> { context, builder ->
 		val ownerId = context.source.player?.stringUUID
 		val ownedGuild = ownerId?.let { id -> GuildManager.loadedGuilds.find { it.ownerId == id } }
-		ownedGuild?.playerIds?.mapNotNull { PlayerManager.getByUUID(it)?.name }?.forEach { memberName -> if (memberName.lowercase(Locale.ROOT).startsWith(builder.remainingLowerCase)) { builder.suggest(memberName) } }
+		ownedGuild?.playerIds?.mapNotNull { PlayerManager.getByUUID(it.uuid)?.name }?.forEach { memberName -> if (memberName.lowercase(Locale.ROOT).startsWith(builder.remainingLowerCase)) { builder.suggest(memberName) } }
 		builder.buildFuture()
 	}
 	override val definition: LiteralArgumentBuilder<CommandSourceStack?>? = Commands.literal(name).executes(::execute).then(Commands.argument("player", StringArgumentType.string()).suggests(suggestions).executes(::kickMember))
@@ -42,12 +43,16 @@ class GuildsKickSubcommand : GuildlyNodeCommand() {
 			feedback.fail("This user never joined the game!")
 			return 0
 		}
-		if (!ownedGuild.playerIds.contains(targetData.uuid)) {
+
+		val playerData = ownedGuild.playerIds.find { p -> p.uuid == targetData.uuid }
+
+		if (playerData == null) {
 			feedback.fail("$targetName is not a member of your guild!")
 			return 0
 		}
+
 		val updatedGuild = ownedGuild.copy(playerIds = ownedGuild.playerIds.toMutableSet())
-		updatedGuild.playerIds.remove(targetData.uuid)
+		updatedGuild.playerIds.remove(GuildMember(targetData.uuid, playerData.role))
 		GuildManager.updateGuild(updatedGuild)
 		PlayerManager.findOnlineByUUID(targetData.uuid)?.sendSystemMessage(Feedback.build("You have been kicked from the ${ownedGuild.name} guild."))
 		feedback.success("$targetName has been kicked from ${ownedGuild.name}")

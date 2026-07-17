@@ -12,8 +12,4 @@ object GuildsTable: Schema("guilds") {
 	val name: Column<String> = text("name", primaryKey = true)
 	val ownerId: Column<String> = text("ownerId")
 	val playerIds: Column<String> = text("playerIds")
-
-	init {
-		columns.addAll(listOf(name, ownerId, playerIds))
-	}
 }

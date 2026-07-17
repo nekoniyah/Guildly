@@ -13,6 +13,7 @@ class Feedback {
     companion object {
         val PREFIX: MutableComponent = Component.literal("[${Guildly.ID}]").withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.GOLD)
         fun build(message: String): MutableComponent = Component.literal("").append(PREFIX).append(Component.literal(" $message").withStyle(ChatFormatting.RESET))
+        fun build(component: MutableComponent): MutableComponent = Component.literal("").append(PREFIX).append(component)
     }
 
     constructor(ctx: CommandContext<CommandSourceStack>) {
