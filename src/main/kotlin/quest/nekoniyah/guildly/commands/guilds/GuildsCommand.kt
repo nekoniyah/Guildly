@@ -20,7 +20,8 @@ class GuildsCommand : GuildlyCoreCommand() {
             GuildsLeaveSubcommand(),
             GuildsJoinSubcommand(),
             GuildsAcceptSubcommand(),
-            GuildsKickSubcommand()
+            GuildsKickSubcommand(),
+            GuildsPromoteSubcommand()
         )
     }
 }
